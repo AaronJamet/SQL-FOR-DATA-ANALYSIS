@@ -464,3 +464,44 @@ ON o.account_id =a.id
 WHERE occurred_at > '2015-12-31'
 GROUP BY 1
 ORDER BY 2 DESC;
+/*
+ 5. We would like to identify top performing sales reps, which are sales reps associated with more than 200 orders.
+   Create a table with the sales rep name, the total number of orders, and a column with top or not depending on if
+   they have more than 200 orders. Place the top sales people first in your final table.
+*/
+SELECT s.name,
+	   COUNT(*) total_orders,
+	   CASE WHEN COUNT(*) > 200 THEN 'Top sales rep'
+       ELSE 'Not top' END AS sales_rep_level
+FROM sales_reps s
+JOIN accounts a
+ON a.sales_rep_id = s.id
+JOIN orders o
+ON o.account_id = a.id
+GROUP BY 1
+ORDER BY 2 DESC;
+
+It is worth mentioning that this assumes each name is unique - which has been done a few times. We otherwise would
+want to break by the name and the id of the table.
+/*
+ 6. The previous didn't account for the middle, nor the dollar amount associated with the sales. Management decides
+   they want to see these characteristics represented as well. We would like to identify top performing sales reps,
+   which are sales reps associated with more than 200 orders or more than 750000 in total sales. The middle group
+   has any rep with more than 150 orders or 500000 in sales. Create a table with the sales rep name, the total
+   number of orders, total sales across all orders, and a column with top, middle, or low depending on this criteria.
+   Place the top sales people based on dollar amount of sales first in your final table. You might see a few upset
+   sales people by this criteria!
+*/
+SELECT s.name,
+	   COUNT(*) total_orders,
+     SUM(total_amt_usd) total_usd_selled,
+	   CASE WHEN COUNT(*) > 200 OR SUM(total_amt_usd) > 750000 THEN 'Top sales'
+       WHEN COUNT(*) > 150 OR SUM(total_amt_usd) > 500000 THEN 'Middle sales'
+       ELSE 'Low sales' END AS sales_rep_level
+FROM sales_reps s
+JOIN accounts a
+ON a.sales_rep_id = s.id
+JOIN orders o
+ON o.account_id = a.id
+GROUP BY 1
+ORDER BY 3 DESC;
