@@ -133,7 +133,29 @@ WITH t1 AS (
           FROM accounts)
 
 SELECT first_name, last_name,
-       CONCAT(first_name, '.', last_name, '@', name, '.com') AS email, 
+       CONCAT(first_name, '.', last_name, '@', name, '.com') AS email,
        LEFT(LOWER(first_name), 1) || RIGHT(LOWER(first_name), 1) || LEFT(LOWER(last_name), 1) ||
           RIGHT(LOWER(last_name), 1) || LENGTH(first_name) || LENGTH(last_name) || REPLACE(UPPER(name), ' ', '') AS password
 FROM t1;
+
+
+### CAST
+/*
+ 1. Format the date column as yyyy-mm-dd
+*/
+SELECT date orig_date, (SUBSTR(date, 7, 4) || '-' || LEFT(date, 2) || '-' || SUBSTR(date, 4, 2)) new_date
+FROM sf_crime_data;
+/*
+ 2. This new date can be operated on using DATE_TRUNC and DATE_PART
+*/
+SELECT date orig_date, (SUBSTR(date, 7, 4) || '-' || LEFT(date, 2) || '-' || SUBSTR(date, 4, 2))::DATE new_date
+FROM sf_crime_data;
+
+
+### COALESCE
+/*
+ Example
+*/
+SELECT COUNT(primary_poc) AS regular_count,
+       COUNT(COALESCE(primary_poc, 'no POC')) AS count_with_nulls_included
+FROM accounts
